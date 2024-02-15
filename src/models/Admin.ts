@@ -2,7 +2,10 @@ import { Role, User } from "."
 
 export interface searchRoot {
   id: number
-  title: string
+  nameType?: string
+  restaurantName?: string
+  distance?: number
+  star?: number
 }
 
 export interface ProductRoot {
@@ -20,26 +23,25 @@ export interface EmployeeRoot {
 
 export interface RestaurantRoot {
   totalRow: number
-  responList: TypeRestaurant[]
+  data: TypeRestaurant[]
 }
 
 export interface ProductItem {
   id: number
   foodName: string
   price: number
-  detail: string | null
+  detail: string
   nameRestaurantFood: string
   imgFood: string
-  distance: number | null
-  time: number
-  star: number
-  quantity: number
-  createBy: string | null
-  createAt: string | null
-  quantityPurchased: number
+  createBy: string
+  createAt: string
+  quantityPurchased: any
   typeFoodEntityId: number
   restaurantEntityId: number
-  status: boolean | null
+  status: boolean
+  distance: string
+  toppingList: any[]
+  nameType: string
 }
 
 export interface TypeRoot {
@@ -48,9 +50,9 @@ export interface TypeRoot {
 }
 export interface TypeItem {
   id: number
-  imgType: string | null
   nameType: string
-  status: string | null
+  imgType: string
+  status: boolean
 }
 
 export interface TypeRestaurant {
@@ -60,21 +62,23 @@ export interface TypeRestaurant {
   timeStart: string
   timeClose: string
   distance: number
-  phoneNumber: string
-  address: string
   imgRes: string
-  time: null
+  time: any
   detail: string
   star: number
+  phoneNumber: string
 }
 export interface EmployeeItem {
   id: number
-  role: Role[]
-  token: any
+  username: string
+  email: string
+  create_date: string
+  modified_date: string
+  status: boolean
+  account_name: string
+  img_user: string
   sdt: string
-  accountName: string
-  imgUser: string
-  msv: string
+  role: string
 }
 export interface VoucherItem {
   id?: number
@@ -106,7 +110,7 @@ export interface UserItem {
 
 export interface UserRoot {
   totalRow: number
-  loginResponDtos: EmployeeItem[]
+  data: EmployeeItem[]
 }
 
 export interface InvoiceRoot {

@@ -18,8 +18,7 @@ import SettingMenu from "./components/SettingMenu"
 import { enqueueSnackbar, useSnackbar } from "notistack"
 
 export function Product() {
-  const location = useLocation() // Get the current location object
-  const queryParams = queryString.parse(location.search) // Parse query parameters from the location
+  const location = useLocation()
   const navigate = useNavigate()
   const [products, setProducts] = useState<ProductItem[]>([])
   const [isError, setIsError] = useState(false)
@@ -74,16 +73,16 @@ export function Product() {
       // Update the location object with the new search parameters
       History.push({ search: updatedSearchParams.toString() })
       try {
-        const res = await adminApi.getAllProducts(pagination)
-        const myProducts = res.data as ProductRoot
-        setProducts(myProducts.data)
-        setRowCount(myProducts.totalRow)
+        const res = (await adminApi.getAllProducts(
+          pagination,
+        )) as unknown as ProductRoot
+        setProducts(res.data)
+        setRowCount(res.totalRow)
       } catch (error) {
         setIsError(true)
         console.error(error)
         return
       }
-
       setIsError(false)
       setIsLoading(false)
       setIsRefetching(false)
@@ -104,7 +103,23 @@ export function Product() {
       { accessorKey: "id", header: "ID" },
       { accessorKey: "foodName", header: "Tên sản phẩm" },
       { accessorKey: "nameRestaurantFood", header: "Thuộc về" },
-      { accessorKey: "star", header: "Đánh giá" },
+      {
+        accessorKey: "star",
+        header: "Đánh giá",
+        Cell: ({ cell }) => (
+          <>
+            {cell.getValue<number>() ? (
+              <span className="text-green-500 font-semibold capitalize">
+                {cell.getValue<number>()}
+              </span>
+            ) : (
+              <span className="text-red-500 font-semibold capitalize">
+                chưa có đánh giá
+              </span>
+            )}
+          </>
+        ),
+      },
       {
         accessorKey: "price",
         header: "Đơn giá",
@@ -112,7 +127,23 @@ export function Product() {
       },
       { accessorKey: "detail", header: "Mô tả" },
       { accessorKey: "quantityPurchased", header: "Đã bán" },
-      { accessorKey: "status", header: "Trạng thái" },
+      {
+        accessorKey: "status",
+        header: "Trạng thái",
+        Cell: ({ cell }) => (
+          <>
+            {cell.getValue<string>() ? (
+              <span className="text-green-500 font-semibold capitalize">
+                đang bán
+              </span>
+            ) : (
+              <span className="text-red-500 font-semibold capitalize">
+                ngừng bán
+              </span>
+            )}
+          </>
+        ),
+      },
     ],
     [],
   )

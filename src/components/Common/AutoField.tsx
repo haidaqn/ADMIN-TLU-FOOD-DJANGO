@@ -34,7 +34,8 @@ export function AutoField(props: AutoFieldProps) {
 
   const defaultProps = {
     options: dataRes,
-    getOptionLabel: (option: searchRoot) => option.title,
+    getOptionLabel: (option: searchRoot) =>
+      option.nameType || option.restaurantName || "",
   }
 
   return (
@@ -54,7 +55,7 @@ export function AutoField(props: AutoFieldProps) {
           onChange={(e) => {
             setTx(e.target.value)
           }}
-          value={tx} // Reflect the current 'tx' value in the input
+          value={tx}
           variant="standard"
         />
       )}

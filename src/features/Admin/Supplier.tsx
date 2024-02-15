@@ -75,10 +75,11 @@ export function Supplier() {
       // Update the location object with the new search parameters
       History.push({ search: updatedSearchParams.toString() })
       try {
-        const res = await adminApi.getAllResFoods(pagination)
-        const myRestaurant = res.data as RestaurantRoot
-        setRestaurant(myRestaurant.responList)
-        setRowCount(myRestaurant.totalRow)
+        const res = (await adminApi.getAllResFoods(
+          pagination,
+        )) as unknown as RestaurantRoot
+        setRestaurant(res.data)
+        setRowCount(res.totalRow)
       } catch (error) {
         setIsError(true)
         console.error(error)

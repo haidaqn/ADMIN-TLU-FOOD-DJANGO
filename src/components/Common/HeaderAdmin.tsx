@@ -10,8 +10,11 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { MenuAdmin } from "."
 import { useSnackbar } from "notistack"
+import { useAppDispatch } from "@/app/hooks"
+import { authActions } from "@/features/auth/AuthSlice"
 
 export function HeaderAdmin() {
+  const dispacth = useAppDispatch()
   const [openProduct, setOpenProduct] = useState(false)
   const [openConfig, setOpenConfig] = useState(false)
   const { enqueueSnackbar } = useSnackbar()
@@ -62,13 +65,7 @@ export function HeaderAdmin() {
           >
             Khách hàng
           </button>
-          {/* <MenuAdmin
-            open={openOrder}
-            setOpen={setOpenOrder}
-            items={OrderList}
-          /> */}
         </div>
-
         <div className="relative">
           <button
             onClick={() => navigate("invoice")}
@@ -76,11 +73,6 @@ export function HeaderAdmin() {
           >
             Hóa đơn
           </button>
-          {/* <MenuAdmin
-            open={openInvoice}
-            setOpen={setOpenInvoice}
-            items={InvoiceList}
-          /> */}
         </div>
         <div className="relative">
           <button
@@ -119,14 +111,19 @@ export function HeaderAdmin() {
           Báo cáo
         </button>
       </Stack>
-      <Stack direction="row">
+      <Stack
+        onClick={() => {
+          dispacth(authActions.logout())
+        }}
+        direction="row"
+      >
         <Tooltip title="Hoạt động gần đây">
           <IconButton>
             <AccessTimeOutlined htmlColor="black" />
           </IconButton>
         </Tooltip>
         <Avatar
-          src={user?.imgUser}
+          src={user?.img_user}
           className="ml-3"
           sx={{ borderRadius: "6px", cursor: "pointer" }}
         />

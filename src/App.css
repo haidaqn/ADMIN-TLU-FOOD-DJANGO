@@ -9,3 +9,9 @@
 .none{
     display: none !important;
 }
+
+.Mui-TableHeadCell-Content-Actions {
+    /* ẩn dấu 3 chấm cạnh các bảng */
+    display :none; 
+
+}

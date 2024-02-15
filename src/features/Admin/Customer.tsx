@@ -1,17 +1,9 @@
 import adminApi from "@/api/adminApi"
 
 import History from "@/Router/History"
-import { UserItem, UserRoot } from "@/models"
-import {
-  Delete,
-  Settings
-} from "@mui/icons-material"
-import {
-  Box,
-  IconButton,
-  Stack,
-  Typography
-} from "@mui/material"
+import { EmployeeItem, UserRoot } from "@/models"
+import { Delete, Settings } from "@mui/icons-material"
+import { Box, IconButton, Stack, Typography } from "@mui/material"
 import {
   MaterialReactTable,
   type MRT_ColumnDef,
@@ -28,7 +20,7 @@ export function Customer() {
   const location = useLocation() // Get the current location object
   const queryParams = queryString.parse(location.search) // Parse query parameters from the location
   const navigate = useNavigate()
-  const [employee, setEmployee] = useState<UserItem[]>([])
+  const [employee, setEmployee] = useState<EmployeeItem[]>([])
   const [isError, setIsError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isRefetching, setIsRefetching] = useState(false)
@@ -65,10 +57,11 @@ export function Customer() {
 
       History.push({ search: updatedSearchParams.toString() })
       try {
-        const res = await adminApi.getPagingUser(pagination)
-        const response = res.data as UserRoot
-        setEmployee(response.loginResponDtos)
-        setRowCount(response.totalRow)
+        const res = (await adminApi.getPagingUser(
+          pagination,
+        )) as unknown as UserRoot
+        setEmployee(res.data)
+        setRowCount(res.totalRow)
       } catch (error) {
         setIsError(true)
         console.error(error)
@@ -98,11 +91,11 @@ export function Customer() {
   const handleSelectRows = (row: any) => {
     console.log(row)
   }
-  const columns = useMemo<MRT_ColumnDef<UserItem>[]>(
+  const columns = useMemo<MRT_ColumnDef<EmployeeItem>[]>(
     () => [
       { accessorKey: "id", header: "ID" },
-      { accessorKey: "accountName", header: "Tên khách hàng" },
-      { accessorKey: "msv", header: "Mã sinh viên" },
+      { accessorKey: "account_name", header: "Tên khách hàng" },
+      { accessorKey: "username", header: "Mã sinh viên" },
       { accessorKey: "sdt", header: "Số điện thoại" },
     ],
     [],

@@ -23,7 +23,7 @@ import {
   Tabs,
 } from "@mui/material"
 import { useSnackbar } from "notistack"
-import React from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 function a11yProps(index: number) {
@@ -45,7 +45,7 @@ function NewProduct(props: NewProductProps) {
   const [openBackDrop, setOpenBackDrop] = React.useState(false)
   const [nameFood, setNameFood] = React.useState<string>("")
   const [detail, setDetail] = React.useState<string>("")
-
+  const [images, setImages] = useState<string>("")
   const { enqueueSnackbar } = useSnackbar()
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -65,36 +65,51 @@ function NewProduct(props: NewProductProps) {
       setPrice("")
     }
   }
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target
+    if (inputElement.files) {
+      const images = new FormData()
+      const selectedFiles = inputElement.files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        images.append("file", file)
+        images.append("upload_preset", "oksl1k1o")
+        try {
+          const response = await adminApi.getUploadImages(images)
+          if (response.status === 200) {
+            setImages(response.data.secure_url)
+          }
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    }
+  }
+
   const handleImageClick = () => {
     if (imgRef.current !== null && !imagePreview) {
       imgRef.current.click()
     }
   }
   const [imagePreview, setImagePreview] = React.useState<string | null>(null)
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedImage = event.target.files && event.target.files[0]
-    console.log(selectedImage)
-    if (selectedImage && event.target.files) {
-      setFile(event.target.files[0])
-      const reader = new FileReader()
-      reader.onload = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(selectedImage)
-    }
-  }
+
   const handlePushProduct = () => {
     async function uploadImage() {
       setLoadding(true)
       try {
-        if (file) {
+        if (images) {
           await adminApi.addFood(
             nameFood,
             parseInt(price.replace(/\D/g, "")),
             detail,
-            file,
+            images,
             Number(typePick?.id),
             Number(resPick?.id),
+            resPick?.restaurantName || "",
+            typePick?.nameType || "",
+            resPick?.star || 5,
+            resPick?.distance || 1,
           )
           setLoadding(false)
           enqueueSnackbar("Thêm mới sản phẩm thành công", {
@@ -102,6 +117,7 @@ function NewProduct(props: NewProductProps) {
           })
           setNameFood("")
           setDetail("")
+          setImages("")
           setPrice("")
           setImagePreview(null)
           setFile(null)
@@ -113,7 +129,6 @@ function NewProduct(props: NewProductProps) {
         }
       } catch (error) {
         setLoadding(false)
-
         enqueueSnackbar("Có lỗi xảy ra vui lòng thử lại", { variant: "error" })
       }
     }
@@ -209,7 +224,7 @@ function NewProduct(props: NewProductProps) {
                     onClick={handleImageClick}
                     className="w-[150px] relative h-[150px] cursor-pointer border"
                   >
-                    {imagePreview ? (
+                    {images ? (
                       <>
                         <Backdrop
                           sx={{ zIndex: "100" }}
@@ -218,7 +233,7 @@ function NewProduct(props: NewProductProps) {
                         >
                           <img
                             className="w-[400px] object-contain"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                         </Backdrop>
@@ -233,7 +248,7 @@ function NewProduct(props: NewProductProps) {
                         >
                           <img
                             className="w-[100%] h-[100%] object-cover"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                           <div className="absolute tool-img top-0 left-0 hidden items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] z-10">
@@ -242,8 +257,7 @@ function NewProduct(props: NewProductProps) {
                             </IconButton>
                             <IconButton
                               onClick={() => {
-                                setImagePreview(null)
-                                setFile(null)
+                                setImages("")
                               }}
                             >
                               <Delete htmlColor="white" />
@@ -263,7 +277,7 @@ function NewProduct(props: NewProductProps) {
                       hidden={true}
                       type="file"
                       id="imageInput"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleFiles(e)}
                       name="imageInput"
                       accept="image/png, image/jpeg"
                     ></input>
@@ -295,7 +309,7 @@ function NewProduct(props: NewProductProps) {
                               </Grid>
                               <Grid item xs={8}>
                                 <AutoField
-                                  apiHandle="type"
+                                  apiHandle="paging-type-food"
                                   value={typePick}
                                   setValue={setTypePick}
                                 />
@@ -310,7 +324,7 @@ function NewProduct(props: NewProductProps) {
                               </Grid>
                               <Grid item xs={8}>
                                 <AutoField
-                                  apiHandle="res"
+                                  apiHandle="paging-res"
                                   value={resPick}
                                   setValue={setResPick}
                                 />

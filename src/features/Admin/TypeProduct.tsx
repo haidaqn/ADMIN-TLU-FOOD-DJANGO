@@ -75,11 +75,11 @@ const TypeProduct = () => {
       // Update the location object with the new search parameters
       History.push({ search: updatedSearchParams.toString() })
       try {
-        const res = await adminApi.getAllTypeFoods(pagination)
-        // console.log(res)
-        const myType = res.data as TypeRoot
-        setProducts(myType.data)
-        setRowCount(myType.totalRow)
+        const res = (await adminApi.getAllTypeFoods(
+          pagination,
+        )) as unknown as TypeRoot
+        setProducts(res.data)
+        setRowCount(res.totalRow)
       } catch (error) {
         setIsError(true)
         console.error(error)
@@ -115,7 +115,23 @@ const TypeProduct = () => {
           />
         ),
       },
-      { accessorKey: "status", header: "Trạng thái" },
+      {
+        accessorKey: "status",
+        header: "Trạng thái",
+        Cell: ({ cell }) => (
+          <>
+            {cell.getValue<string>() ? (
+              <span className="text-green-500 font-semibold capitalize">
+                đang bán
+              </span>
+            ) : (
+              <span className="text-red-500 font-semibold capitalize">
+                ngừng bán
+              </span>
+            )}
+          </>
+        ),
+      },
     ],
     [],
   )

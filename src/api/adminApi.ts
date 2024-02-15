@@ -2,33 +2,116 @@ import { VoucherItem } from "./../models/Admin"
 import { ExpandFood } from "./../models/Topping"
 import { PageConfig } from "./../models/Config"
 import axiosClient from "./axiosClient"
+import axios from "axios"
 const adminApi = {
+  //done
   getAllProducts(page: PageConfig) {
-    const url = `ADMIN/paging-food-admin?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
-    return axiosClient.post(url)
+    const url = `prod/paging-food?pageSize=${page.pageSize}&pageIndex=${
+      page.pageIndex + 1
+    }`
+    return axiosClient.get(url)
   },
+  getAllTypeFoods(page: PageConfig) {
+    const url = `prod/paging-type-food?pageSize=${page.pageSize}&pageIndex=${
+      page.pageIndex + 1
+    }`
+    return axiosClient.get(url)
+  },
+  getAllResFoods(page: PageConfig) {
+    const url = `prod/paging-res?pageSize=${page.pageSize}&pageIndex=${
+      page.pageIndex + 1
+    }`
+    return axiosClient.get(url)
+  },
+  getPagingUser(page: PageConfig) {
+    const url = `auth/paging-account?pageSize=${page.pageSize}&pageIndex=${
+      page.pageIndex + 1
+    }`
+    return axiosClient.get(url)
+  },
+
+  search(param: string | null, apiHandle: string) {
+    const url_res = `prod/${apiHandle}?pageIndex=1&pageSize=100`
+    return axiosClient.get(url_res)
+  },
+
+  getUploadImages(images: FormData) {
+    const url = `https://api.cloudinary.com/v1_1/drussspqf/image/upload`
+    return axios.post(url, images)
+  },
+
+  addFood(
+    name: string,
+    price: number,
+    detail: string,
+    imgFood: string,
+    typeFoodEntityId: number,
+    restaurantEntityId: number,
+    nameRestaurantFood: string,
+    nameType: string,
+    star: number,
+    distance: number,
+  ) {
+    const data = new FormData()
+    data.append("createBy", "ADMIN")
+    data.append("createAt", new Date().toISOString())
+    data.append("detail", detail)
+    data.append("foodName", name)
+    data.append("imgFood", imgFood)
+    data.append("price", price.toString())
+    data.append("typeFoodEntityId", typeFoodEntityId.toString())
+    data.append("restaurantEntityId ", restaurantEntityId.toString())
+    data.append("nameRestaurantFood ", nameRestaurantFood.toString())
+    data.append("nameType ", nameType.toString())
+    data.append("star ", star.toString())
+    data.append("distance ", distance.toString())
+
+    const url = "prod/paging-food"
+    return axiosClient.post(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
+  deleteFood(foodArray: Array<number>) {
+    const url = "prod/paging-food"
+    return axiosClient.delete(url, { data: foodArray })
+  },
+  // đang làm
+
+  updateProduct(
+    id: number,
+    foodName: string,
+    price: number,
+    detail: string,
+    imgFood: File | null,
+    typeFoodEntityId: number,
+    restaurantEntityId: number,
+  ) {
+    const data = new FormData()
+    data.append("id", String(id))
+    data.append("foodName", foodName)
+    data.append("price", String(price))
+    data.append("detail", detail)
+    if (imgFood !== null) {
+      data.append("imgFood", imgFood)
+    }
+    data.append("typeFoodEntityId", String(typeFoodEntityId))
+    data.append("restaurantEntityId", String(restaurantEntityId))
+    const url = "ADMIN/update-food"
+    return axiosClient.put(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
+
+  // chưa done
   getAllVoucher(page: PageConfig) {
     const url = `ADMIN/paging-voucher?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
     return axiosClient.post(url)
   },
-  search(param: string | null, apiHandle: string) {
-    const url_res = param ? `ADMIN/search-res?key=${param}` : `ADMIN/search-res`
-    const url_type = param
-      ? `ADMIN/search-type?key=${param}`
-      : `ADMIN/search-type`
-    if (apiHandle === "res") {
-      return axiosClient.post(url_res)
-    }
-    return axiosClient.post(url_type)
-  },
-  getAllTypeFoods(page: PageConfig) {
-    const url = `ADMIN/paging-type-admin?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
-    return axiosClient.post(url)
-  },
-  getAllResFoods(page: PageConfig) {
-    const url = `ADMIN/paging-res?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
-    return axiosClient.post(url)
-  },
+
   addTopping(data: ExpandFood) {
     const url = "ADMIN/add-topping"
     return axiosClient.post(url, data)
@@ -63,29 +146,7 @@ const adminApi = {
       },
     })
   },
-  addFood(
-    name: string,
-    price: number,
-    detail: string,
-    imgFood: File,
-    typeFoodEntityId: number,
-    restaurantEntityId: number,
-  ) {
-    const data = new FormData()
-    data.append("foodName", name)
-    data.append("price", price.toString())
-    data.append("detail", detail)
-    data.append("imgFood", imgFood)
-    data.append("typeFoodEntityId", typeFoodEntityId.toString())
-    data.append("restaurantEntityId", restaurantEntityId.toString())
 
-    const url = "ADMIN/add-food"
-    return axiosClient.post(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data", // Thêm đoạn này để đảm bảo dữ liệu được gửi dưới dạng FormData
-      },
-    })
-  },
   addEmployee(
     username: string,
     password: string,
@@ -157,49 +218,21 @@ const adminApi = {
       },
     })
   },
-  updateProduct(
-    id: number,
-    foodName: string,
-    price: number,
-    detail: string,
-    imgFood: File | null,
-    typeFoodEntityId: number,
-    restaurantEntityId: number,
-  ) {
-    const data = new FormData()
-    data.append("id", String(id))
-    data.append("foodName", foodName)
-    data.append("price", String(price))
-    data.append("detail", detail)
-    if (imgFood !== null) {
-      data.append("imgFood", imgFood)
-    }
-    data.append("typeFoodEntityId", String(typeFoodEntityId))
-    data.append("restaurantEntityId", String(restaurantEntityId))
-    const url = "ADMIN/update-food"
-    return axiosClient.put(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-  },
+
   updateVoucher(data: VoucherItem) {
     const url = "ADMIN/update-voucher"
     return axiosClient.put(url, data)
   },
-  updateBill(status:string,id:number){
-    const url=`ADMIN/update-bill?orderStatus=${status}&id=${id}`
+  updateBill(status: string, id: number) {
+    const url = `ADMIN/update-bill?orderStatus=${status}&id=${id}`
     return axiosClient.put(url)
   },
-  deleteFood(foodArray: Array<number>) {
-    const url = "ADMIN/delete-food"
-    return axiosClient.post(url, foodArray)
-  },
+
   deleteVoucher(foodArray: Array<number>) {
     const url = "ADMIN/delete-voucher"
     return axiosClient.post(url, foodArray)
   },
-  
+
   deleteType(typeArray: Array<number>) {
     const url = "ADMIN/delete-type"
     return axiosClient.post(url, typeArray)
@@ -212,16 +245,12 @@ const adminApi = {
     const url = `ADMIN/MANAGER/paging-employee?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
     return axiosClient.post(url)
   },
-  getPagingUser(page: PageConfig) {
-    const url = `ADMIN/paging-user?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
-    return axiosClient.post(url)
-  },
 
   getDetailStore(id: number) {
     const url = `ADMIN/get-detail-res?id=${id}`
     return axiosClient.post(url)
   },
-  getDetailBill(id:number){
+  getDetailBill(id: number) {
     const url = `ADMIN/get-detail-bill?id=${id}`
     return axiosClient.post(url)
   },
