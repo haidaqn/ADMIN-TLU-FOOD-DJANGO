@@ -22,6 +22,20 @@ import { useSnackbar } from "notistack"
 import React, { ChangeEvent } from "react"
 import { useNavigate } from "react-router-dom"
 
+interface VoucherRes {
+  id: number
+  create_by: string
+  create_date: string
+  status: boolean
+  detail: string
+  expired: string
+  quantity: number
+  discount: number
+  title: string
+  code: string
+  createAt: string
+}
+
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
@@ -85,18 +99,18 @@ function UpdateVoucher({ id }: { id: string }) {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await adminApi.getDetailVoucher(+id)
+        const response = (await adminApi.getDetailVoucher(
+          +id,
+        )) as unknown as VoucherRes
         // console.log(response)
-        if (response?.status) {
-          setDiscount(response?.data?.discount)
-          setIdVoucher(response?.data?.code)
-          setDetail(response?.data?.detail)
-          setQuantity(response?.data?.quantity)
-          setExpired(dayjs(response?.data?.expired))
-          setTitle(response?.data?.title)
-          setIdD(response?.data?.id)
-          setCreateDate(response?.data?.createDate)
-        }
+        setDiscount(response?.discount)
+        setIdVoucher(response?.code)
+        setDetail(response?.detail)
+        setQuantity(response?.quantity)
+        setExpired(dayjs(response?.expired))
+        setTitle(response?.title)
+        setIdD(response?.id + "")
+        setCreateDate(response?.create_date)
       } catch (err) {
         console.log(err)
       }

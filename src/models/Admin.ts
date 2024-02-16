@@ -83,6 +83,7 @@ export interface EmployeeItem {
 export interface VoucherItem {
   id?: number
   createDate?: string
+  createAt?: string
   status?: boolean
   discount: number
   expired: string

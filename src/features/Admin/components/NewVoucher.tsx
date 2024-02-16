@@ -55,7 +55,7 @@ function NewVoucher(props: NewVoucherProps) {
           detail: detail,
           quantity: quantity,
           discount: discount,
-
+          createAt: dayjs(Date.now()).format("YYYY-MM-DD"),
         }
         console.log(voucher)
         await adminApi.addVoucher(voucher)

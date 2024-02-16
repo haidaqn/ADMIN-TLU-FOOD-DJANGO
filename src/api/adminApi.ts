@@ -213,20 +213,36 @@ const adminApi = {
     const url = `prod/paging-res/${id}/`
     return axiosClient.get(url)
   },
+  getAllVoucher(page: PageConfig) {
+    const url = `auth/paging-voucher?pageSize=${page.pageSize}&pageIndex=${
+      page.pageIndex + 1
+    }`
+    return axiosClient.get(url)
+  },
+
+  getDetailVoucher(id: number) {
+    const url = `auth/paging-voucher/${id}/`
+    return axiosClient.get(url)
+  },
+  addVoucher(data: VoucherItem) {
+    const url = "auth/paging-voucher"
+    return axiosClient.post(url, data)
+  },
+  deleteVoucher(foodArray: Array<number>) {
+    const url = "auth/paging-voucher"
+    return axiosClient.delete(url, { data: foodArray })
+  },
+  updateVoucher(data: VoucherItem) {
+    const url = `auth/paging-voucher/${data.id}/`
+    return axiosClient.put(url, data)
+  },
+
   // đang làm
 
   // chưa done
-  getAllVoucher(page: PageConfig) {
-    const url = `ADMIN/paging-voucher?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
-    return axiosClient.post(url)
-  },
 
   addTopping(data: ExpandFood) {
     const url = "ADMIN/add-topping"
-    return axiosClient.post(url, data)
-  },
-  addVoucher(data: VoucherItem) {
-    const url = "ADMIN/add-voucher"
     return axiosClient.post(url, data)
   },
 
@@ -247,18 +263,9 @@ const adminApi = {
     })
   },
 
-  updateVoucher(data: VoucherItem) {
-    const url = "ADMIN/update-voucher"
-    return axiosClient.put(url, data)
-  },
   updateBill(status: string, id: number) {
     const url = `ADMIN/update-bill?orderStatus=${status}&id=${id}`
     return axiosClient.put(url)
-  },
-
-  deleteVoucher(foodArray: Array<number>) {
-    const url = "ADMIN/delete-voucher"
-    return axiosClient.post(url, foodArray)
   },
 
   getPagingEmployee(page: PageConfig) {
@@ -276,10 +283,6 @@ const adminApi = {
       return axiosClient.post(url)
     }
     const url = `ADMIN/get-bill?pageIndex=${page.pageIndex}&pageSize=${page.pageSize}`
-    return axiosClient.post(url)
-  },
-  getDetailVoucher(id: number) {
-    const url = `ADMIN/get-detail-voucher?id=${id}`
     return axiosClient.post(url)
   },
 }

@@ -73,10 +73,11 @@ export function Voucher() {
       // Update the location object with the new search parameters
       History.push({ search: updatedSearchParams.toString() })
       try {
-        const res = await adminApi.getAllVoucher(pagination)
-        const myVouchers = res.data as VoucherRoot
-        setVouchers(myVouchers.data)
-        setRowCount(myVouchers.totalRow)
+        const res = (await adminApi.getAllVoucher(
+          pagination,
+        )) as unknown as VoucherRoot
+        setVouchers(res.data)
+        setRowCount(res.totalRow)
       } catch (error) {
         setIsError(true)
         console.error(error)
@@ -107,12 +108,31 @@ export function Voucher() {
       {
         accessorKey: "discount",
         header: "Giảm giá",
-        Cell: ({ cell }) => cell.getValue<string>()+"%",
+        Cell: ({ cell }) => cell.getValue<string>() + "%",
       },
-      { accessorKey: "expired", header: "Ngày hết hạn",
-      Cell: ({ cell }) =>dayjs(cell.getValue<string>()).format('DD/MM/YYYY'), },
+      {
+        accessorKey: "expired",
+        header: "Ngày hết hạn",
+        Cell: ({ cell }) => dayjs(cell.getValue<string>()).format("DD/MM/YYYY"),
+      },
       { accessorKey: "quantity", header: "Số lượng" },
-      { accessorKey: "status", header: "Trạng thái" },
+      {
+        accessorKey: "status",
+        header: "Trạng thái",
+        Cell: ({ cell }) => (
+          <>
+            {cell.getValue<number>() ? (
+              <span className="text-green-500 font-semibold capitalize">
+                còn hạn
+              </span>
+            ) : (
+              <span className="text-red-500 font-semibold capitalize">
+                hết hạn
+              </span>
+            )}
+          </>
+        ),
+      },
     ],
     [],
   )
