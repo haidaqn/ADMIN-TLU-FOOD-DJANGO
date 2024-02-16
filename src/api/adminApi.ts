@@ -77,33 +77,73 @@ const adminApi = {
     const url = "prod/paging-food"
     return axiosClient.delete(url, { data: foodArray })
   },
-  // đang làm
 
   updateProduct(
     id: number,
-    foodName: string,
+    name: string,
     price: number,
     detail: string,
-    imgFood: File | null,
+    imgFood: string,
     typeFoodEntityId: number,
     restaurantEntityId: number,
+    nameRestaurantFood: string,
+    nameType: string,
+    star: number,
+    distance: number,
   ) {
     const data = new FormData()
-    data.append("id", String(id))
-    data.append("foodName", foodName)
-    data.append("price", String(price))
+    data.append("createBy", "ADMIN")
+    data.append("createAt", new Date().toISOString())
     data.append("detail", detail)
-    if (imgFood !== null) {
-      data.append("imgFood", imgFood)
-    }
+    data.append("foodName", name)
+    data.append("price", price.toString())
+    data.append("typeFoodEntityId", typeFoodEntityId.toString())
+    data.append("restaurantEntityId ", restaurantEntityId.toString())
+    data.append("nameRestaurantFood ", nameRestaurantFood.toString())
+    data.append("nameType ", nameType.toString())
+    data.append("star ", star.toString())
+    data.append("distance ", distance.toString())
+    data.append("imgFood", imgFood)
     data.append("typeFoodEntityId", String(typeFoodEntityId))
     data.append("restaurantEntityId", String(restaurantEntityId))
-    const url = "ADMIN/update-food"
+    const url = `prod/paging-food/${id}/`
     return axiosClient.put(url, data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     })
+  },
+
+  // đang làm
+
+  addType(imgType: string, nameType: string) {
+    const data = new FormData()
+    data.append("imgType", imgType)
+    data.append("nameType", nameType)
+    data.append("create_date", new Date().toISOString())
+    const url = "prod/paging-type-food"
+    return axiosClient.post(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
+
+  updateType(id: number, nameType: string, imgRes: string) {
+    const data = new FormData()
+    data.append("id", String(id))
+    data.append("nameType", nameType)
+    data.append("imgType", imgRes)
+    const url = `prod/paging-type-food/${id}/`
+    return axiosClient.put(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
+  deleteType(typeArray: Array<number>) {
+    const url = "prod/paging-type-food"
+    return axiosClient.delete(url, { data: typeArray })
   },
 
   // chưa done
@@ -163,17 +203,7 @@ const adminApi = {
       imgUser: imgUser,
     })
   },
-  addType(imgType: File, nameType: string) {
-    const data = new FormData()
-    data.append("imgType", imgType)
-    data.append("nameType", nameType)
-    const url = "ADMIN/add-type"
-    return axiosClient.post(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-  },
+
   updateSupplier(
     id: number,
     restaurantName: string,
@@ -204,20 +234,6 @@ const adminApi = {
       },
     })
   },
-  updateType(id: number, nameType: string, imgRes: File | null) {
-    const data = new FormData()
-    data.append("id", String(id))
-    data.append("nameType", nameType)
-    if (imgRes !== null) {
-      data.append("imgType", imgRes)
-    }
-    const url = "ADMIN/update-type"
-    return axiosClient.put(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-  },
 
   updateVoucher(data: VoucherItem) {
     const url = "ADMIN/update-voucher"
@@ -233,10 +249,6 @@ const adminApi = {
     return axiosClient.post(url, foodArray)
   },
 
-  deleteType(typeArray: Array<number>) {
-    const url = "ADMIN/delete-type"
-    return axiosClient.post(url, typeArray)
-  },
   deleteStore(storeArray: Array<number>) {
     const url = "ADMIN/delete-res"
     return axiosClient.post(url, storeArray)

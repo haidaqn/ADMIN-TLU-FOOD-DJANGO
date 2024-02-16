@@ -21,15 +21,43 @@ import { useSnackbar } from "notistack"
 import React from "react"
 import { useNavigate } from "react-router-dom"
 
+
+interface TypeFood {
+  id: number
+  nameType: string
+  imgType: string
+  status: boolean
+}
+
 const UpdateType = ({ id }: { id: string }) => {
   const [file, setFile] = React.useState<File | null>()
   const [type, setType] = React.useState<string>("")
   const imgRef = React.useRef<HTMLInputElement | null>(null)
   const [openBackDrop, setOpenBackDrop] = React.useState(false)
   const { enqueueSnackbar } = useSnackbar()
-
+  const [images, setImages] = React.useState<string>("")
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target
+    if (inputElement.files) {
+      const images = new FormData()
+      const selectedFiles = inputElement.files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        images.append("file", file)
+        images.append("upload_preset", "oksl1k1o")
+        try {
+          const response = await adminApi.getUploadImages(images)
+          if (response.status === 200) {
+            setImages(response.data.secure_url)
+          }
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    }
+  }
   const handleImageClick = () => {
-    if (imgRef.current !== null && !imagePreview) {
+    if (imgRef.current !== null) {
       imgRef.current.click()
     }
   }
@@ -49,10 +77,8 @@ const UpdateType = ({ id }: { id: string }) => {
   const handlePushProduct = () => {
     async function uploadImage() {
       try {
-        if (file) {
-          await adminApi.updateType(+id, type, file)
-        } else {
-          await adminApi.updateType(+id, type, null)
+        if (images) {
+          await adminApi.updateType(+id, type, images)
         }
         enqueueSnackbar("Sửa loại thành công", { variant: "success" })
       } catch (error) {
@@ -65,11 +91,11 @@ const UpdateType = ({ id }: { id: string }) => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const response = await foodsApis.getDetailType(+id)
-      if (response?.status) {
-        setType(response?.data?.nameType)
-        setImagePreview(response?.data?.imgType)
-      }
+      const response = (await foodsApis.getDetailType(
+        +id,
+      )) as unknown as TypeFood
+      setType(response.nameType)
+      setImages(response.imgType)
     }
     fetchData()
   }, [])
@@ -143,7 +169,7 @@ const UpdateType = ({ id }: { id: string }) => {
                     onClick={handleImageClick}
                     className="w-[150px] relative h-[150px] cursor-pointer border"
                   >
-                    {imagePreview ? (
+                    {images ? (
                       <>
                         <Backdrop
                           sx={{ zIndex: "100" }}
@@ -152,7 +178,7 @@ const UpdateType = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[400px] object-contain"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                         </Backdrop>
@@ -167,14 +193,14 @@ const UpdateType = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[100%] h-[100%] object-cover"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                           <div className="absolute tool-img top-0 left-0 hidden items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] z-10">
                             <IconButton onClick={() => setOpenBackDrop(true)}>
                               <Visibility htmlColor="white" />
                             </IconButton>
-                            <IconButton onClick={() => setImagePreview(null)}>
+                            <IconButton onClick={() => setImages("")}>
                               <Delete htmlColor="white" />
                             </IconButton>
                           </div>
@@ -192,7 +218,7 @@ const UpdateType = ({ id }: { id: string }) => {
                       hidden={true}
                       type="file"
                       id="imageInput"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleFiles(e)}
                       name="imageInput"
                       accept="image/png, image/jpeg"
                     ></input>

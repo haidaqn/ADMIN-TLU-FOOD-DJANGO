@@ -34,6 +34,26 @@ function a11yProps(index: number) {
   }
 }
 
+
+interface Response {
+  id: number
+  foodName: string
+  price: number
+  detail: string
+  nameRestaurantFood: string
+  imgFood: string
+  createBy: string
+  createAt: string
+  quantityPurchased: number
+  typeFoodEntityId: number
+  restaurantEntityId: number
+  status: boolean
+  distance: string
+  toppingList: any[]
+  nameType: string
+  star: any
+}
+
 const UpdateProduct = ({ id }: { id: string }) => {
   const [tabs, setTabs] = React.useState(0)
   const [price, setPrice] = React.useState<string>("")
@@ -45,7 +65,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
   const [openBackDrop, setOpenBackDrop] = React.useState(false)
   const [nameFood, setNameFood] = React.useState<string>("")
   const [detail, setDetail] = React.useState<string>("")
-
+  const [images, setImages] = React.useState<string>("")
   const { enqueueSnackbar } = useSnackbar()
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -66,54 +86,55 @@ const UpdateProduct = ({ id }: { id: string }) => {
     }
   }
   const handleImageClick = () => {
-    if (imgRef.current !== null && !imagePreview) {
+    if (imgRef.current !== null) {
       imgRef.current.click()
     }
   }
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedImage = event.target.files && event.target.files[0]
-    console.log(selectedImage)
-    if (selectedImage && event.target.files) {
-      setFile(event.target.files[0])
-      const reader = new FileReader()
-      reader.onload = () => {
-        setImagePreview(reader.result as string)
+
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target
+    if (inputElement.files) {
+      const images = new FormData()
+      const selectedFiles = inputElement.files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        images.append("file", file)
+        images.append("upload_preset", "oksl1k1o")
+        try {
+          const response = await adminApi.getUploadImages(images)
+          if (response.status === 200) {
+            setImages(response.data.secure_url)
+          }
+        } catch (err) {
+          console.log(err)
+        }
       }
-      reader.readAsDataURL(selectedImage)
     }
   }
-  console.log(detail)
+
   const handlePushProduct = () => {
     async function uploadImage() {
       setLoadding(true)
       try {
-        if (file) {
+        if (images) {
           await adminApi.updateProduct(
             +id,
             nameFood,
             parseInt(price.replace(/\D/g, "")),
             detail,
-            file,
+            images,
             Number(typePick?.id),
             Number(resPick?.id),
-          )
-        } else {
-          await adminApi.updateProduct(
-            +id,
-            nameFood,
-            parseInt(price.replace(/\D/g, "")),
-            detail,
-            null,
-            Number(typePick?.id),
-            Number(resPick?.id),
+            resPick?.restaurantName || "",
+            typePick?.nameType || "",
+            resPick?.star || 5,
+            resPick?.distance || 1,
           )
         }
         setLoadding(false)
         enqueueSnackbar("Sửa mới sản phẩm thành công", {
           variant: "success",
         })
-      
       } catch (error) {
         console.log(error)
         setLoadding(false)
@@ -133,19 +154,21 @@ const UpdateProduct = ({ id }: { id: string }) => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await foodsApis.getDetailFood(+id)
-        setDetail(response?.data?.detail)
-        setImagePreview(response?.data?.imgFood)
-        setNameFood(response?.data?.foodName)
-        setPrice(handlePrice(response?.data?.price))
+        const response = (await foodsApis.getDetailFood(
+          +id,
+        )) as unknown as Response
+        setDetail(response.detail || "")
+        setNameFood(response.foodName || "")
+        setPrice(handlePrice(response.price || ""))
         setTypePick({
-          id: response?.data?.typeFoodEntityId,
-          title: response?.data?.nameType,
+          id: response?.typeFoodEntityId,
+          nameType: response?.nameType,
         })
         setResPick({
-          id: response?.data?.restaurantEntityId,
-          title: response?.data?.nameRestaurantFood,
+          id: response?.restaurantEntityId,
+          restaurantName: response?.nameRestaurantFood,
         })
+        setImages(response.imgFood)
       } catch (err) {
         console.log(err)
       }
@@ -236,7 +259,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                     onClick={handleImageClick}
                     className="w-[150px] relative h-[150px] cursor-pointer border"
                   >
-                    {imagePreview ? (
+                    {images ? (
                       <>
                         <Backdrop
                           sx={{ zIndex: "100" }}
@@ -245,7 +268,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[400px] object-contain"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                         </Backdrop>
@@ -260,7 +283,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[100%] h-[100%] object-cover"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                           <div className="absolute tool-img top-0 left-0 hidden items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] z-10">
@@ -269,8 +292,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                             </IconButton>
                             <IconButton
                               onClick={() => {
-                                setImagePreview(null)
-                                setFile(null)
+                                setImages("")
                               }}
                             >
                               <Delete htmlColor="white" />
@@ -290,7 +312,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                       hidden={true}
                       type="file"
                       id="imageInput"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleFiles(e)}
                       name="imageInput"
                       accept="image/png, image/jpeg"
                     ></input>
@@ -322,7 +344,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                               </Grid>
                               <Grid item xs={8}>
                                 <AutoField
-                                  apiHandle="type"
+                                  apiHandle="paging-type-food"
                                   value={typePick}
                                   setValue={setTypePick}
                                 />
@@ -337,7 +359,7 @@ const UpdateProduct = ({ id }: { id: string }) => {
                               </Grid>
                               <Grid item xs={8}>
                                 <AutoField
-                                  apiHandle="res"
+                                  apiHandle="paging-res"
                                   value={resPick}
                                   setValue={setResPick}
                                 />
