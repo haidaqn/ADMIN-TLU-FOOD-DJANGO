@@ -114,8 +114,6 @@ const adminApi = {
     })
   },
 
-  // đang làm
-
   addType(imgType: string, nameType: string) {
     const data = new FormData()
     data.append("imgType", imgType)
@@ -146,6 +144,77 @@ const adminApi = {
     return axiosClient.delete(url, { data: typeArray })
   },
 
+  addRestaurant(
+    restaurantName: string,
+    address: string,
+    distance: string,
+    detail: string,
+    phoneNumber: string,
+    supOpen: string,
+    supClose: string,
+    imgRes: string,
+  ) {
+    const data = new FormData()
+    data.append("restaurantName", restaurantName)
+    data.append("address", address)
+    data.append("distance", distance)
+    data.append("detail", detail)
+    data.append("phoneNumber", phoneNumber)
+    data.append("timeStart", supOpen)
+    data.append("timeClose", supClose)
+    data.append("imgRes", imgRes)
+    data.append("quantitySold", "0")
+    data.append("star", "5")
+    const url = "prod/paging-res"
+    return axiosClient.post(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Thêm đoạn này để đảm bảo dữ liệu được gửi dưới dạng FormData
+      },
+    })
+  },
+  updateSupplier(
+    id: number,
+    restaurantName: string,
+    address: string,
+    distance: string,
+    detail: string,
+    timeStart: string,
+    timeClose: string,
+    phoneNumber: string,
+    imgRes: string | null,
+  ) {
+    const data = new FormData()
+    data.append("id", String(id))
+    data.append("restaurantName", restaurantName)
+    data.append("address", address)
+    data.append("distance", String(distance))
+    data.append("detail", detail)
+    data.append("timeStart", timeStart)
+    data.append("timeClose", timeClose)
+    data.append("phoneNumber", phoneNumber)
+    data.append("phoneNumber", phoneNumber)
+    data.append("quantitySold", "0")
+    data.append("star", "0")
+    if (imgRes !== null) {
+      data.append("imgRes", imgRes)
+    }
+    const url = `prod/paging-res/${id}/`
+    return axiosClient.put(url, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+  },
+  deleteStore(storeArray: Array<number>) {
+    const url = "prod/paging-res"
+    return axiosClient.delete(url, { data: storeArray })
+  },
+  getDetailStore(id: number) {
+    const url = `prod/paging-res/${id}/`
+    return axiosClient.get(url)
+  },
+  // đang làm
+
   // chưa done
   getAllVoucher(page: PageConfig) {
     const url = `ADMIN/paging-voucher?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
@@ -159,32 +228,6 @@ const adminApi = {
   addVoucher(data: VoucherItem) {
     const url = "ADMIN/add-voucher"
     return axiosClient.post(url, data)
-  },
-  addRestaurant(
-    restaurantName: string,
-    address: string,
-    distance: string,
-    detail: string,
-    phoneNumber: string,
-    supOpen: string,
-    supClose: string,
-    imgRes: File,
-  ) {
-    const data = new FormData()
-    data.append("restaurantName", restaurantName)
-    data.append("address", address)
-    data.append("distance", distance)
-    data.append("detail", detail)
-    data.append("phoneNumber", phoneNumber)
-    data.append("timeStart", supOpen)
-    data.append("timeClose", supClose)
-    data.append("imgRes", imgRes)
-    const url = "ADMIN/add-res"
-    return axiosClient.post(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data", // Thêm đoạn này để đảm bảo dữ liệu được gửi dưới dạng FormData
-      },
-    })
   },
 
   addEmployee(
@@ -204,37 +247,6 @@ const adminApi = {
     })
   },
 
-  updateSupplier(
-    id: number,
-    restaurantName: string,
-    address: string,
-    distance: string,
-    detail: string,
-    timeStart: string,
-    timeClose: string,
-    phoneNumber: string,
-    imgRes: File | null,
-  ) {
-    const data = new FormData()
-    data.append("id", String(id))
-    data.append("restaurantName", restaurantName)
-    data.append("address", address)
-    data.append("distance", String(distance))
-    data.append("detail", detail)
-    data.append("timeStart", timeStart)
-    data.append("timeClose", timeClose)
-    data.append("phoneNumber", phoneNumber)
-    if (imgRes !== null) {
-      data.append("imgRes", imgRes)
-    }
-    const url = "ADMIN/update-res"
-    return axiosClient.put(url, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-  },
-
   updateVoucher(data: VoucherItem) {
     const url = "ADMIN/update-voucher"
     return axiosClient.put(url, data)
@@ -249,19 +261,11 @@ const adminApi = {
     return axiosClient.post(url, foodArray)
   },
 
-  deleteStore(storeArray: Array<number>) {
-    const url = "ADMIN/delete-res"
-    return axiosClient.post(url, storeArray)
-  },
   getPagingEmployee(page: PageConfig) {
     const url = `ADMIN/MANAGER/paging-employee?pageSize=${page.pageSize}&pageIndex=${page.pageIndex}`
     return axiosClient.post(url)
   },
 
-  getDetailStore(id: number) {
-    const url = `ADMIN/get-detail-res?id=${id}`
-    return axiosClient.post(url)
-  },
   getDetailBill(id: number) {
     const url = `ADMIN/get-detail-bill?id=${id}`
     return axiosClient.post(url)

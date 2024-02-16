@@ -16,11 +16,27 @@ import {
   Paper,
   Stack,
   Tab,
-  Tabs
+  Tabs,
 } from "@mui/material"
 import { useSnackbar } from "notistack"
 import React, { ChangeEvent, memo, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+
+interface Res {
+  id: number
+  restaurantName: string
+  quantitySold: number
+  timeStart: string
+  timeClose: string
+  distance: number
+  imgRes: string
+  time: any
+  detail: string
+  star: number
+  phoneNumber: string
+  address: string
+}
+
 const UpdateSupplier = ({ id }: { id: string }) => {
   const [file, setFile] = React.useState<File | null>()
   const [value, setValue] = React.useState(0)
@@ -32,24 +48,23 @@ const UpdateSupplier = ({ id }: { id: string }) => {
   const [detail, setDetail] = React.useState<string>("")
   const [imagePreview, setImagePreview] = React.useState<string | null>(null)
   const [distance, setDistance] = React.useState<string>("")
+  const [images, setImages] = React.useState<string>("")
   const [quantitySold, setQuantitySold] = React.useState<number>(0)
   const imgRef = React.useRef<HTMLInputElement | null>(null)
   const [openBackDrop, setOpenBackDrop] = React.useState(false)
   const { enqueueSnackbar } = useSnackbar()
   useEffect(() => {
     const fetchData = async () => {
-      const response = await adminApi.getDetailStore(+id)
-      if (response?.status) {
-        setRestaurantName(response?.data?.restaurantName)
-        setAddress(response?.data?.address)
-        setQuantitySold(response?.data?.quantitySold)
-        setDistance(response?.data?.distance)
-        setDetail(response?.data?.detail)
-        setSupOpen(response?.data?.timeStart)
-        setSupClose(response?.data?.timeClose)
-        setPhone(response?.data?.phoneNumber)
-        setImagePreview(response?.data?.imgRes)
-      }
+      const response = (await adminApi.getDetailStore(+id)) as unknown as Res
+      setRestaurantName(response?.restaurantName)
+      setAddress(response?.address)
+      setQuantitySold(response?.quantitySold)
+      setDistance(response.distance + "")
+      setDetail(response?.detail)
+      setSupOpen(response?.timeStart)
+      setSupClose(response?.timeClose)
+      setPhone(response?.phoneNumber)
+      setImages(response?.imgRes)
     }
     fetchData()
   }, [])
@@ -65,39 +80,35 @@ const UpdateSupplier = ({ id }: { id: string }) => {
     }
   }
   const handleImageClick = () => {
-    if (imgRef.current !== null && !imagePreview) {
+    if (imgRef.current !== null) {
       imgRef.current.click()
     }
   }
-
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedImage = event.target.files && event.target.files[0]
-    if (selectedImage && event.target.files) {
-      setFile(event.target.files[0])
-      const reader = new FileReader()
-      reader.onload = () => {
-        setImagePreview(reader.result as string)
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target
+    if (inputElement.files) {
+      const images = new FormData()
+      const selectedFiles = inputElement.files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        images.append("file", file)
+        images.append("upload_preset", "oksl1k1o")
+        try {
+          const response = await adminApi.getUploadImages(images)
+          if (response.status === 200) {
+            setImages(response.data.secure_url)
+          }
+        } catch (err) {
+          console.log(err)
+        }
       }
-      reader.readAsDataURL(selectedImage)
     }
   }
+
   const handlePushProduct = async () => {
     async function uploadImage() {
       try {
-        if (file) {
-          await adminApi.updateSupplier(
-            +id,
-            restaurantName,
-            address,
-        
-            distance,
-            detail,
-            supOpen,
-            supClose,
-            phone,
-            file,
-          )
-        } else {
+        if (images) {
           await adminApi.updateSupplier(
             +id,
             restaurantName,
@@ -107,7 +118,7 @@ const UpdateSupplier = ({ id }: { id: string }) => {
             supOpen,
             supClose,
             phone,
-            null,
+            images,
           )
         }
         enqueueSnackbar("Sửa nhà cung cấp thành công", { variant: "success" })
@@ -198,7 +209,7 @@ const UpdateSupplier = ({ id }: { id: string }) => {
                     onClick={handleImageClick}
                     className="w-[150px] relative h-[150px] cursor-pointer border"
                   >
-                    {imagePreview ? (
+                    {images ? (
                       <>
                         <Backdrop
                           sx={{ zIndex: "100" }}
@@ -207,7 +218,7 @@ const UpdateSupplier = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[400px] object-contain"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                         </Backdrop>
@@ -222,14 +233,14 @@ const UpdateSupplier = ({ id }: { id: string }) => {
                         >
                           <img
                             className="w-[100%] h-[100%] object-cover"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                           <div className="absolute tool-img top-0 left-0 hidden items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] z-10">
                             <IconButton onClick={() => setOpenBackDrop(true)}>
                               <Visibility htmlColor="white" />
                             </IconButton>
-                            <IconButton onClick={() => setImagePreview(null)}>
+                            <IconButton onClick={() => setImages("")}>
                               <Delete htmlColor="white" />
                             </IconButton>
                           </div>
@@ -247,7 +258,7 @@ const UpdateSupplier = ({ id }: { id: string }) => {
                       hidden={true}
                       type="file"
                       id="imageInput"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleFiles(e)}
                       name="imageInput"
                       accept="image/png, image/jpeg"
                     ></input>

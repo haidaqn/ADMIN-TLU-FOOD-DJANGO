@@ -48,10 +48,10 @@ function NewStore(props: NewProductProps) {
   const [supClose, setSupClose] = React.useState<string>("")
   const [detail, setDetail] = React.useState<string>("")
   const [distance, setDistance] = React.useState<string>("")
+  const [images, setImages] = React.useState<string>("")
   const imgRef = React.useRef<HTMLInputElement | null>(null)
   const [openBackDrop, setOpenBackDrop] = React.useState(false)
   const [loadding, setLoadding] = React.useState(false)
-  
 
   const { enqueueSnackbar } = useSnackbar()
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -59,28 +59,37 @@ function NewStore(props: NewProductProps) {
   }
 
   const handleImageClick = () => {
-    if (imgRef.current !== null && !imagePreview) {
+    if (imgRef.current !== null) {
       imgRef.current.click()
     }
   }
-  const [imagePreview, setImagePreview] = React.useState<string | null>(null)
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedImage = event.target.files && event.target.files[0]
 
-    if (selectedImage && event.target.files) {
-      setFile(event.target.files[0])
-      const reader = new FileReader()
-      reader.onload = () => {
-        setImagePreview(reader.result as string)
+  const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputElement = e.target
+    if (inputElement.files) {
+      const images = new FormData()
+      const selectedFiles = inputElement.files
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        images.append("file", file)
+        images.append("upload_preset", "oksl1k1o")
+        try {
+          const response = await adminApi.getUploadImages(images)
+          if (response.status === 200) {
+            setImages(response.data.secure_url)
+          }
+        } catch (err) {
+          console.log(err)
+        }
       }
-      reader.readAsDataURL(selectedImage)
     }
   }
+
   const handlePushProduct = async () => {
     async function uploadImage() {
       setLoadding(true)
       try {
-        if (file) {
+        if (images) {
           await adminApi.addRestaurant(
             restaurantName,
             address,
@@ -89,8 +98,7 @@ function NewStore(props: NewProductProps) {
             phone,
             supOpen,
             supClose,
-          
-            file,
+            images,
           )
           setLoadding(false)
           enqueueSnackbar("Tạo nhà cung cấp thành công", { variant: "success" })
@@ -101,9 +109,8 @@ function NewStore(props: NewProductProps) {
           setPhone("")
           setSupClose("")
           setSupOpen("")
-          setImagePreview(null)
+          setImages("")
           setFile(null)
-          
         } else {
           setLoadding(false)
           enqueueSnackbar("Bắt buộc phải có ảnh", { variant: "error" })
@@ -200,7 +207,7 @@ function NewStore(props: NewProductProps) {
                     onClick={handleImageClick}
                     className="w-[150px] relative h-[150px] cursor-pointer border"
                   >
-                    {imagePreview ? (
+                    {images ? (
                       <>
                         <Backdrop
                           sx={{ zIndex: "100" }}
@@ -209,7 +216,7 @@ function NewStore(props: NewProductProps) {
                         >
                           <img
                             className="w-[400px] object-contain"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                         </Backdrop>
@@ -224,7 +231,7 @@ function NewStore(props: NewProductProps) {
                         >
                           <img
                             className="w-[100%] h-[100%] object-cover"
-                            src={imagePreview}
+                            src={images}
                             alt="Preview"
                           />
                           <div className="absolute tool-img top-0 left-0 hidden items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.5)] z-10">
@@ -233,8 +240,7 @@ function NewStore(props: NewProductProps) {
                             </IconButton>
                             <IconButton
                               onClick={() => {
-                                setImagePreview(null)
-                                setFile(null)
+                                setImages("")
                               }}
                             >
                               <Delete htmlColor="white" />
@@ -254,7 +260,7 @@ function NewStore(props: NewProductProps) {
                       hidden={true}
                       type="file"
                       id="imageInput"
-                      onChange={handleImageChange}
+                      onChange={(e) => handleFiles(e)}
                       name="imageInput"
                       accept="image/png, image/jpeg"
                     ></input>
@@ -268,7 +274,6 @@ function NewStore(props: NewProductProps) {
                       aria-label="basic tabs example"
                     >
                       <Tab label="Thông tin nhà cung cấp" {...a11yProps(0)} />
- 
                     </Tabs>
                   </Box>
                   <div hidden={value !== 0}>
@@ -410,7 +415,6 @@ function NewStore(props: NewProductProps) {
                       </Box>
                     )}
                   </div>
-            
                 </div>
               </div>
             </Box>
