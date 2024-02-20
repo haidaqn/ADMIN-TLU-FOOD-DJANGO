@@ -263,7 +263,11 @@ const UpdateInvoice = ({ id }: { id: string }) => {
                                                   {food.quantity}
                                                 </Grid>
                                                 <Grid item xs={2}>
-                                                  {food.priceFood}
+                                                {formatCurrencyVND(
+                                                    String(
+                                                        food.priceFood
+                                                    )
+                                                  )}
                                                 </Grid>
                                                 <Grid item xs={2}>
                                                   {formatCurrencyVND(
@@ -297,19 +301,19 @@ const UpdateInvoice = ({ id }: { id: string }) => {
                               <p>Ghi chú:{data.note || "Không có ghi chú"}</p>
                               <p>
                                 Tổng phí vận chuyển:{" "}
-                                {formatCurrencyVND(String(data.shipFee))}
+                                {formatCurrencyVND(String(data.ship_fee))}
                               </p>
                               <p>
                                 Tổng phí đơn hàng:{" "}
-                                {formatCurrencyVND(String(data.totalAmount))}
+                                {formatCurrencyVND(String(data.total_amount))}
                               </p>
                               <p>
                                 Tổng phí hóa đơn:{" "}
-                                {formatCurrencyVND(String(data.totalAmount +data.shipFee))}
+                                {formatCurrencyVND(String(data.total_amount +data.ship_fee))}
                               </p>
                               </Grid>
                               <Grid item xs={6}>
-                                  <p>Tên khách:{data.user?.msv + " " + (data.user?.accountName || "Không rõ")}</p> 
+                                  <p>Tên khách:{data.user?.username + " " + (data.user?.account_name || "Không rõ")}</p> 
                                   <p> Số điện thoại: {data.user?.sdt}</p> 
                                   <p> gmail: {data.user?.email || "Chưa xác thực"}</p> 
                               </Grid>

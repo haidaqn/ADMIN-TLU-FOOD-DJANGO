@@ -142,13 +142,14 @@ export interface VoucherResponseBill {
 }
 export interface BillUser {
   id: number
+  accountName:string
   createAt: string
   orderStatus: string
-  shipFee: number
-  finishTime: string
+  ship_fee: number
+  finish_time: string
   user?:User
   accountId: number
-  totalAmount: number
+  total_amount: number
   note: string
   voucherResponseBill: VoucherResponseBill | any
   foodResponseBills: FoodResponseBill[]

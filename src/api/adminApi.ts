@@ -264,8 +264,8 @@ const adminApi = {
   },
 
   updateBill(status: string, id: number) {
-    const url = `ADMIN/update-bill?orderStatus=${status}&id=${id}`
-    return axiosClient.put(url)
+    const url = `payment/detail-bill/${id}?orderStatus=${status}`
+    return axiosClient.patch(url)
   },
 
   getPagingEmployee(page: PageConfig) {
@@ -274,16 +274,16 @@ const adminApi = {
   },
 
   getDetailBill(id: number) {
-    const url = `ADMIN/get-detail-bill?id=${id}`
-    return axiosClient.post(url)
+    const url = `payment/detail-bill/${id}`
+    return axiosClient.get(url)
   },
   getBill(page: PageConfig, status: string | null) {
     if (status) {
-      const url = `ADMIN/get-bill?pageIndex=${page.pageIndex}&pageSize=${page.pageSize}&orderStatus=${status}`
-      return axiosClient.post(url)
+      const url = `payment/bill?pageIndex=${page.pageIndex+1}&pageSize=${page.pageSize}&orderStatus=${status}`
+      return axiosClient.get(url)
     }
-    const url = `ADMIN/get-bill?pageIndex=${page.pageIndex}&pageSize=${page.pageSize}`
-    return axiosClient.post(url)
+    const url = `payment/bill?pageIndex=${page.pageIndex+1}&pageSize=${page.pageSize}`
+    return axiosClient.get(url)
   },
 }
 

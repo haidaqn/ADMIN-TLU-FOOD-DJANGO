@@ -65,6 +65,7 @@ function NewVoucher(props: NewVoucherProps) {
         setQuantity(0)
         setDiscount(0)
         setTitle("")
+        setDetail("")
       } catch (error) {
         setLoadding(false)
         enqueueSnackbar("Tạo ưu đãi thất bại", { variant: "error" })
