@@ -30,7 +30,7 @@ const InvoiceAdmin = () => {
   const location = useLocation() // Get the current location object
   const queryParams = queryString.parse(location.search) // Parse query parameters from the location
   const navigate = useNavigate()
-  const [invoice, setInvoice] = useState<BillUser[]>([])
+  const [invoice, setInvoice] = useState<BillUser[] |[]>([])
   const [isError, setIsError] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isRefetching, setIsRefetching] = useState(false)
@@ -54,8 +54,7 @@ const InvoiceAdmin = () => {
   }
   useEffect(() => {
     const fetchData = async () => {
-      if (!invoice.length) {
-        setIsLoading(true)
+      if (invoice.length>=0) {
       } else {
         setIsRefetching(true)
       }
@@ -67,14 +66,15 @@ const InvoiceAdmin = () => {
       updatedSearchParams.set("sorting", JSON.stringify(sorting ?? []))
       History.push({ search: updatedSearchParams.toString() })
       try {
+        
         if (status === "ALL") {
           const res = await adminApi.getBill(pagination, null)
-          const myInvoice = res.data as InvoiceRoot
+          const myInvoice = res as unknown as InvoiceRoot
           setInvoice(myInvoice.data)
           setRowCount(myInvoice.totalRow)
         } else {
           const res = await adminApi.getBill(pagination, status)
-          const myInvoice = res.data as InvoiceRoot
+          const myInvoice = res as unknown as InvoiceRoot
           setInvoice(myInvoice.data)
           setRowCount(myInvoice.totalRow)
         }
@@ -102,24 +102,24 @@ const InvoiceAdmin = () => {
   const columns = useMemo<MRT_ColumnDef<BillUser>[]>(
     () => [
       { accessorKey: "id", header: "ID" },
-      { accessorKey: "accountId", header: "Người đặt" },
+      { accessorKey: "accountName", header: "Người đặt" },
       { header: "Mã đơn" ,Cell:({cell,row})=> `#${dayjs(row.original.createAt).format("DDMMYY")}O${row.original.id}`},
       {
-        accessorKey: "shipFee",
+        accessorKey: "ship_fee",
         header: "Phí ship",
         Cell: ({ cell }) => formatCurrencyVND(cell.getValue<string>()),
       },
       {
-        accessorKey: "totalAmount",
+        accessorKey: "total_amount",
         header: "Tổng đơn hàng",
         Cell: ({ cell }) => formatCurrencyVND(cell.getValue<string>()),
       },
       {
-        accessorKey: "finishTime",
+        accessorKey: "finish_time",
         header: "Giờ giao",
       },
       {
-        accessorKey: "createAt",
+        accessorKey: "create_date",
         header: "Tạo lúc",
         Cell: ({ cell }) =>
           dayjs(cell.getValue<string>()).format("HH:mm DD/MM/YYYY"),
@@ -190,7 +190,7 @@ const InvoiceAdmin = () => {
           </Stack>
         )}
         columns={columns}
-        data={invoice}
+        data={invoice||[]}
         enableRowSelection
         manualFiltering
         manualPagination
