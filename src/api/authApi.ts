@@ -10,8 +10,9 @@ const authApi = {
   register(data: RegisterForm) {
     const url = "auth/register"
     const form: RegisterFormApi = {
-      accountName: data.name,
+      account_name: data.name,
       password: data.password,
+      re_password: data.rePassword,
       username: data.username,
       sdt: data.phoneNumber,
     }
