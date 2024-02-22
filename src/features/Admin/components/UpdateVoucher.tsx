@@ -78,10 +78,7 @@ function UpdateVoucher({ id }: { id: string }) {
         // console.log(response)
         setLoading(false)
         enqueueSnackbar("Sửa ưu đãi thành công", { variant: "success" })
-        setIdVoucher("")
-        setQuantity(0)
-        setDiscount(0)
-        setTitle("")
+        
       } catch (error) {
         setLoading(false)
         enqueueSnackbar("Sửa ưu đãi thất bại", { variant: "error" })

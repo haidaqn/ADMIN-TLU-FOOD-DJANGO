@@ -126,7 +126,7 @@ export function Product() {
         Cell: ({ cell }) => formatCurrencyVND(cell.getValue<string>()),
       },
       { accessorKey: "detail", header: "Mô tả" },
-      { accessorKey: "quantityPurchased", header: "Đã bán" },
+      { accessorKey: "quantityPurchased", header: "Đã bán",  Cell: ({ cell }) => (cell.getValue<number>()||0),},
       {
         accessorKey: "status",
         header: "Trạng thái",
