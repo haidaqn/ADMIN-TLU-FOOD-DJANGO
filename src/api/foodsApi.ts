@@ -3,12 +3,13 @@ import { PageConfig } from "@/models"
 
 const foodsApis = {
   getDetailFood(id: number) {
-    const url = `prod/paging-food/${id}/`
+    const url = `prod/paging-food/${id}`
     return axiosClient.get(url)
   },
 
   getDetailType(id: number) {
-    const url = `prod/paging-type-food/${id}/`
+    const url = `prod/paging-type-food/${id}cls
+    `
     return axiosClient.get(url)
   },
 

@@ -6,9 +6,10 @@ export interface RegisterForm{
     rePassword:string,
 }
 
-export interface RegisterFormApi{
-    username:string,
-    password:string,
-    sdt:string,
-    accountName:string
+export interface RegisterFormApi {
+  username: string
+  password: string
+  sdt: string
+  account_name: string
+  re_password: string
 }

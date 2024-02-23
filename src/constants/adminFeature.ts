@@ -19,4 +19,4 @@ export const ProductList = getList(
   ["Sản phẩm", "Loại sản phẩm", "Nhà cung cấp"],
   ["/product", "/type", "/supplier"],
 )
-export const ConfigList = getList(["Món kèm", "Ưu đãi"], ["/expand-food", "/voucher"])
+export const ConfigList = getList(["Ưu đãi"], [ "/voucher"])
