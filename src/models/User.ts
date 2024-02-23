@@ -9,6 +9,7 @@ export interface User {
   img_user: string
   sdt: string
   role: string
+  token:string
 }
 
 export interface Role {
