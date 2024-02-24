@@ -8,8 +8,7 @@ const foodsApis = {
   },
 
   getDetailType(id: number) {
-    const url = `prod/paging-type-food/${id}cls
-    `
+    const url = `prod/paging-type-food/${id}`
     return axiosClient.get(url)
   },
 
